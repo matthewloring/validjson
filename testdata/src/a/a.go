@@ -10,6 +10,17 @@ type StrAlias string
 
 type ChanAlias chan<- int
 
+type Textable [2]byte
+
+func (t Textable) MarshalText() ([]byte, error) {
+	return []byte(fmt.Sprintf("%02x%02x", t[0], t[1])), nil
+}
+
+func (t *Textable) UnmarshalText(text []byte) error {
+	_, err := fmt.Sscanf(string(text), "%02x%02x", &t[0], &t[1])
+	return err
+}
+
 type ValidJsonTest struct {
 	A int                           `json:"A"`
 	B int                           `json:"B,omitempty"`
@@ -29,4 +40,5 @@ type ValidJsonTest struct {
 	P complex64                     `json:"P"` // want "struct field has json tag but non-serializable type complex64"
 	Q complex128                    `json:"Q"` // want "struct field has json tag but non-serializable type complex128"
 	R StrAlias                      `json:"R"`
+	S map[Textable]int              `json:"S"`
 }
